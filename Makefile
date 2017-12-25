@@ -7,7 +7,7 @@ nomemmove: memmove-bug
 	./memmove-bug -m
 
 memmove-bug: memmove-bug.c
-	cc -m32 -O2 -g -Wall -o $@ $<
+	$(CC) -m32 -O2 -g -Wall -o $@ $<
 
 report: memmove-bug
 	@echo "Details for your system:"
