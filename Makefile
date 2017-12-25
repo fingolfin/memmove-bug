@@ -1,18 +1,21 @@
 all: memmove report
 
-memmove: memove-bug
-	./memove-bug || echo "memmove is BUGGY"
+memmove: memmove-bug
+	./memmove-bug || echo "memmove is BUGGY"
 
-nomemmove: memove-bug
-	./memove-bug -m
+nomemmove: memmove-bug
+	./memmove-bug -m
 
-memove-bug: memmove-bug.c
+memmove-bug: memmove-bug.c
 	cc -m32 -O2 -g -Wall -o $@ $<
 
-report: memove-bug
+report: memmove-bug
 	@echo "Details for your system:"
-	@`ldd ./memove-bug | grep libc | sed 's;[^/]*\(/[^ ]*\).*;\1;'` | head -n 1
+	@`ldd ./memmove-bug | grep libc | sed 's;[^/]*\(/[^ ]*\).*;\1;'` | head -n 1
 	@$(CC) --version | head -n 1
 	@uname -rv
 
-.PHONY: all memmove nomemmove report
+clean:
+	rm -f memmove-bug memove-bug
+
+.PHONY: all memmove nomemmove report clean
