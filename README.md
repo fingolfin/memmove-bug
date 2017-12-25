@@ -45,8 +45,18 @@ Submit the result as an issue via <https://github.com/fingolfin/memmove-bug/issu
 
 ## Affected versions
 
-So far, I was able to reproduce the bug with GNU libc 2.23 and 2.24,
-while I could not reproduce it with 2.5, 2.17, 2.19.
+So far, I was able to reproduce the bug with GNU libc 2.21, 2.23, 2.24, 2.25.
+In contrast, I could not reproduce it with 2.5, 2.17, 2.19, 2.20
+
+Thus, it seems the issue was introduced in 2.21. Indeed, that version added
+__memmove_sse2_unaligned which is what is used in all broken cases, as
+far as I can tell.
+
+Looking at the glibc sources for that function, it seems it performs signed
+comparisons of address in several places. I added a patch file,
+`glibc-memcpy.patch`, which addresses those, and thus *might* fix the issue;
+but so far I have not tested it (would have to figure out how to compile and
+use my own libc for that).
 
 
 ### Details on affected systems
@@ -61,24 +71,40 @@ while I could not reproduce it with 2.5, 2.17, 2.19.
   * GNU C Library (Debian GLIBC 2.24-11+deb9u1) stable release version 2.24, by Roland McGrath et al.
   * gcc (Debian 6.3.0-18) 6.3.0 20170516
   * 4.9.0-3-amd64 #1 SMP Debian 4.9.30-2+deb9u5 (2017-09-19)
+  * `__memmove_sse2_unaligned`
+
+3. "murrumesh" running Gentoo (Base System release 2.4.1)
+  * GNU C Library (Gentoo 2.25-r9 p12) stable release version 2.25, by Roland McGrath et al.
+  * gcc (Gentoo 4.9.4 p1.0, pie-0.6.4) 4.9.4
+  * 3.16.5-gentoo #1 SMP Tue Dec 16 15:06:31 CET 2014
+
+4. Fedora 22
+  * GNU C Library (GNU libc) stable release version 2.21, by Roland McGrath et al.
+  * cc (GCC) 5.3.1 20160406 (Red Hat 5.3.1-6)
+  * 4.4.14-200.fc22.x86_64 #1 SMP Fri Jun 24 21:19:33 UTC 2016
+  * `memmove == __memmove_sse2_unaligned`
 
 ### Details on systems which are not affected
 
-* "lovelace" running Scientific Linux 7
+1. "lovelace" running Scientific Linux 7
   * GNU C Library (GNU libc) stable release version 2.17, by Roland McGrath et al.
   * gcc (GCC) 6.3.1 20170216 (Red Hat 6.3.1-3)
   * 3.10.0-693.1.1.el7.x86_64 #1 SMP Tue Aug 15 08:36:44 CDT 2017
   * `memmove == __memmove_ssse3`
 
-* "seress" running Debian 8.10
+2. "seress" running Debian 8.10
   * GNU C Library (Debian GLIBC 2.19-18+deb8u10) stable release version 2.19, by Roland McGrath et al.
   * gcc (Debian 4.9.2-10) 4.9.2
   * 3.16.0-4-amd64 #1 SMP Debian 3.16.39-1+deb8u2 (2017-03-07)
   * `memmove == __memmove_ssse3_rep`
 
-
-* "yin"
+3. "yin"
   * GNU C Library stable release version 2.5, by Roland McGrath et al.
   * gcc (GCC) 4.1.2 20080704 (Red Hat 4.1.2-55)
   * 2.6.18-416.el5xen #1 SMP Fri Oct 28 11:56:28 UTC 2016
 
+4. Fedora 21
+  * GNU C Library (GNU libc) stable release version 2.20, by Roland McGrath et al.
+  * cc (GCC) 4.9.2 20150212 (Red Hat 4.9.2-6)
+  * 4.1.13-100.fc21.x86_64 #1 SMP Tue Nov 10 13:13:20 UTC 2015
+  * `memmove == __memmove_ssse3_rep`
