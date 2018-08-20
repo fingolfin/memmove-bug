@@ -1,5 +1,7 @@
 # Reproducing a memmove bug in GNU libc
 
+**UPDATE: This is fixed in glibc 2.28, and is [CVE-2017-18269](https://www.cvedetails.com/cve/CVE-2017-18269/).**
+
 There is a bug in GNU libc's memmove in 32bit binaries when moving memory
 across the 2GB boundary. My guess is that there is a sign issue here: the
 initial address of the move range is "positive" (top bit not set), the final
